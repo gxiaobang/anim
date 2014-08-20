@@ -3,21 +3,21 @@ fx
 
 Animation Framework
 
-¶¯»­Ä£¿é¡¡
+åŠ¨ç”»æ¨¡å—ã€€
 
- - new Fx(element)
- -    .animOptions(options)
- -    .run();
+ new Fx(element)
+    .animOptions(options)
+    .run();
 
- -  animOptionsÉèÖÃ²ÎÊı
- -	Options 
- -	{
- -	    to: {} //ÉèÖÃÄ¿±ê×´Ì¬
- -	    from: {} //¿ªÊ¼×´Ì¬
- -	    duration: string //³ÖĞøÊ±¼ä
- -	    type: string //¶¯»­ÀàĞÍ
- -	    ease: string //»º¶¯
- -	    onComplete: function //¶¯»­Íê³ÉÊÇÖ´ĞĞ
- -	    isReverse: boolean //ÊÇ·ñ»Ø·Å
- -	}
-run Ö´ĞĞ¶¯»­
+  animOptionsè®¾ç½®å‚æ•°
+	Options 
+	{
+	    to: {} //è®¾ç½®ç›®æ ‡çŠ¶æ€
+	    from: {} //å¼€å§‹çŠ¶æ€
+	    duration: string //æŒç»­æ—¶é—´
+	    type: string //åŠ¨ç”»ç±»å‹
+	    ease: string //ç¼“åŠ¨
+	    onComplete: function //åŠ¨ç”»å®Œæˆæ˜¯æ‰§è¡Œ
+	    isReverse: boolean //æ˜¯å¦å›æ”¾
+	}
+run æ‰§è¡ŒåŠ¨ç”»
