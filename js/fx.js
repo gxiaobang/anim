@@ -37,9 +37,14 @@ Fx.prototype={
             {
                 propertys[attr]=value;
             }
+            else
+            {
+            	propertys=attr;
+            }
 
             for(var name in propertys)
             {
+            	value=propertys[name];
                 if(name=='opacity')
                 {
                     obj.style['opacity']=value;
@@ -94,7 +99,17 @@ Fx.prototype={
             to=this.options.to,
             nodes=this.nodes,
             startTime=+new Date,
-            elespedTime;
+            reverse=function (){
+            	var ret={length: 0};
+
+            	for(var name in to)ret[name]=[from[0][name]];
+
+            	return ret;
+            }(),
+            elespedTime,calc;
+
+
+        this.options.reverse=reverse;
 
         this.timerId=setInterval(function (){
 
@@ -109,12 +124,18 @@ Fx.prototype={
 
                         for(var name in to)
                         {
+                        	calc=tweenFn(elespedTime, from[i][name], to[name]-from[i][name], duration);
+
                             _this.attr(
                                 node, name, 
                                 // 调用补间动画公式
-                                tweenFn(elespedTime, from[i][name], to[name]-from[i][name], duration)
+                                calc
                             )
+
+                            reverse[name].push(calc);
                         }
+
+                        reverse.length+=1;
                     }
                 }
                 else
@@ -186,15 +207,9 @@ Fx.prototype={
             queues[0].move();
         }
 
-        if(this.options.reverse)
+        if(this.options.isReverse)
         {
-        	this.options.reverse=false;
-        	var _from=this.options.from;
-
-        	this.options.to=_from[0];
-        	delete this.options.from;
-
-        	this.run();
+        	this.makeReverse();
         }
         else
         {
@@ -204,9 +219,38 @@ Fx.prototype={
         
     },
     // 回放
-    /*reverse: function (){
+    makeReverse: function (){
 
-    },*/
+    	var now=this.options.reverse.length,
+    		_this=this;
+
+    	delete this.options.isReverse;
+
+    	(function move(){
+
+    		now--;
+    		if(now>-1)
+    		{
+    			for(var name in _this.options.reverse)
+    			{
+    				if(name!=='length')
+    				{
+
+    					_this.attr(_this.nodes[0], name, _this.options.reverse[name][now]);
+    				}
+    				
+    			}
+    			
+
+    			setTimeout(move, 1000/_this.fps)
+    		}
+    		else
+    		{
+    			_this.options.onComplete&&_this.options.onComplete.call(_this);
+    		}
+
+    	})();
+    },
     // 队列
     queue: function (){
         queues.push(this);
