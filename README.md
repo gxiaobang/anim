@@ -3,13 +3,13 @@ fx
 
 Animation Framework
 
-动画模块　
+### 动画模块　
 
  new Fx(element)
     .animOptions(options)
     .run();
 
-  animOptions设置参数
+ animOptions设置参数
 	Options 
 	{
 	    to: {} //设置目标状态
@@ -20,4 +20,4 @@ Animation Framework
 	    onComplete: function //动画完成是执行
 	    isReverse: boolean //是否回放
 	}
-run 执行动画
+	run 执行动画
