@@ -1,4 +1,3 @@
-
 /**
  * fx 动画模块
  * author: bang
@@ -6,263 +5,190 @@
  * versions: 1.0
  */
 
+;(function( global ) {
 
-;(function (golbal){
+var FPS = 60,
+    DOC = document,
+    WIN = DOC.defaultView;
 
-// 创建队列数组
-var queues=[];
-function Fx()
-{
-    this._init.apply(this, arguments);
+// 数据类型
+function typeOf( obj ) {
+    var type = Object.prototype.toString.call( obj );
+
+    return type.substring( 8, type.length - 1 );
 }
-Fx.prototype={
-    fps: 60,
-    defaultView: document.defaultView,
 
-    _init: function (nodes){
-        if(!nodes.length)
-        {
-            nodes=[nodes];
+// 获取样式
+function getStyle( node, attr ) {
+    // W3C标准
+    if( WIN && WIN.getComputedStyle ) {
+        return WIN.getComputedStyle( node, '' )[ attr ] || null;
+    }
+    // IE8-
+    else {
+        if( attr === 'opacity' ) {
+            var filters = obj.filters.alpha ||
+                            obj.filters[ 'DXImageTransform.Microsoft.Alpha' ];
+
+            return ( filters.opacity || 100 ) / 100;
         }
+        else {
+            return node.currentStyle[ attr ] || null;
+        }
+    }
+}
+// 设置样式
+function setStyle( node, attr, value ) {
+    var attrs = {},
+        name;
 
-        this.nodes=nodes;
+    if( arguments.length === 3 && typeOf( attr ) === 'String' ) {
+        attrs[ attr ] = value;
+    }
+    else {
+        attrs = attr;
+    }
+
+    for( name in attrs ) {
+        if( name === 'opacity' ) {
+            node.style.opacity = attrs[ name ];
+            node.style.filter = 'alpha(filter=' + (attrs[ name ] / 100) + ')';
+        }
+        else if( isNaN( attrs[ name ] ) ) {
+            node.style[ name ] = attrs[ name ];
+        }
+        else {
+            node.style[ name ] = attrs[ name ] + 'px';
+        }
+    }
+}
+
+// 创建Fx
+function Fx() {
+    this._init.apply( this, arguments );
+}
+Fx.prototype = {
+    _init: function( node ) {
+        this.node = node;
     },
-    attr: function (obj, attr, value){
-        // 设置
-        if(arguments.length>2 || attr.constructor==Object)
-        {
-            var propertys={};
-
-            if(typeof attr=='string')
-            {
-                propertys[attr]=value;
-            }
-            else
-            {
-            	propertys=attr;
-            }
-
-            for(var name in propertys)
-            {
-            	value=propertys[name];
-                if(name=='opacity')
-                {
-                    obj.style['opacity']=value;
-                    obj.style['filter']='alpha(opacity='+value*100+')';
-                }
-                else
-                {
-                    if(!isNaN(value))
-                    {
-                        value+='px';
-                    }
-                    obj.style[name]=value;
-                }
-            }
-        }
-        // 获取
-        else
-        {
-            // w3c标准
-            if(this.defaultView && this.defaultView.getComputedStyle)
-            {
-                return this.defaultView.getComputedStyle(obj, '')[attr]||null;
-            }
-            // ie8-
-            else
-            {
-                if(attr=='opacity')
-                {
-                    var filters=obj.filters.alpha||obj.filters['DXImageTransform.Microsoft.Alpha'];
-
-                    return (filters.opacity||100)/100;
-                }
-                return obj.currentStyle[attr]||null;
-            }
-        }
-    },
-    /**
-     * [设置运动参数]
-     * @param  {[Json]} options [duration(持续时间), type(缓动类型), from(初始状态), to(目标状态)]
-     * @return {[Object]}         [实例对象]
-     */
-    animOptions: function (options){
-        this.options=options||{};
+    // 设置运动参数
+    animOptions: function( options ) {
+        this.options = options;
 
         return this;
     },
-    move: function (){
-        var _this=this,
-            tweenFn=this.options.tweenFn,
-            duration=this.options.duration,
-            from=this.options.from,
-            to=this.options.to,
-            nodes=this.nodes,
-            startTime=+new Date,
-            reverse=function (){
-            	var ret={length: 0};
+    // 开始
+    start: function() {
+        
+        if( !this.isAnim ) {
+            this.isAnim = true;
+            this.intend();
+            this.move();
+        }
+    },
+    // 获取初始化参数
+    intend: function() {
+        this.options.from = this.options.from || {};
+        for( var name in this.options.to ) {
+            this.options.to[ name ] = parseFloat( this.options.to[ name ] );
+            if( !this.options.from[ name ] ) {
+                this.options.from[ name ] = parseFloat( getStyle( this.node, name ) );
+            }
+            else {
+                this.options.from[ name ] = parseFloat( this.options.from[ name ] );
+            }
+        }
 
-            	for(var name in to)ret[name]=[from[0][name]];
+        // 缓动函数
+        this.options.type = this.options.type || 'Quart';
+        this.options.ease = this.options.ease || 'easeOut';
+        if( this.options.type === 'Linear' ) {
+            this.options.fTween = Tween.Linear;
+        }
+        else {
+            this.options.fTween = Tween[ this.options.type ][ this.options.ease ];
+        }
+    },
+    // 补间动画
+    move: function() {
+        var _this = this,
+            // 运动所需要的参数
+            fTween = this.options.fTween,
+            duration = this.options.duration || 400,
+            from = this.options.from,
+            to = this.options.to,
+            startTime = +new Date,
+            reverse = this.options.reverse = {},
+            anim, elespedTime, calc, name;
 
-            	return ret;
-            }(),
-            elespedTime,calc;
+        anim = function() {
+            elespedTime = +new Date - startTime;
 
-
-        this.options.reverse=reverse;
-
-        this.timerId=setInterval(function (){
-
-            if(_this.isAnim)
-            {
-                elespedTime=+new Date-startTime;
-
-                if(elespedTime<duration)
-                {
-                    for(var i=0,node;node=nodes[i];i++)
-                    {
-
-                        for(var name in to)
-                        {
-                        	calc=tweenFn(elespedTime, from[i][name], to[name]-from[i][name], duration);
-
-                            _this.attr(
-                                node, name, 
-                                // 调用补间动画公式
-                                calc
-                            )
-
-                            reverse[name].push(calc);
-                        }
-
-                        reverse.length+=1;
+            if( _this.isAnim ) {
+                for( name in to ) {
+                    calc = fTween( elespedTime, from[ name ], to[ name ] - from[ name ], duration );
+                    setStyle( _this.node, name, calc );
+                    
+                    if( !reverse[ name ] ) reverse[ name ] = [];
+                    reverse[ name ].push( calc );
+                }
+                
+                if( elespedTime < duration ) {
+                    global.requestAnimFrame( anim );
+                }
+                else {
+                    if( _this.options.isReverse ) {
+                        _this.makeReverse();
+                    }
+                    else {
+                        _this.complete( _this.options.to );
                     }
                 }
-                else
-                {
-                    _this.stop();
-                    _this.complete();
-                }
             }
-            else
-            {
-                _this.stop();
-            }
+        };
 
-        }, 1000/this.fps);
+        global.requestAnimFrame( anim );
     },
-    stop: function (){
-        this.isAnim=false;
-        clearInterval(this.timerId);
+    // 停止
+    stop: function() {
+        this.isAnim = false;
     },
-    begin: function (){
-
-        if(queues[0]!==this)return;
-
-        var nodes=this.nodes;
-
-        this.isAnim=true;
-
-        // 起始状态
-        if(this.options.from)
-        {
-            for(var i=0,node;node=nodes[i];i++)
-            {
-                this.attr(node, this.options.from);
-            }
-        }
-        else
-        {
-            this.options.from=[];
-            for(var i=0,node;node=nodes[i];i++)
-            {
-                this.options.from[i]={};
-                for(var name in this.options.to)
-                {
-                    this.options.from[i][name]=parseFloat(this.attr(node, name))||0;
-                }
-            }
-        }
-
-        var tweenFn=Tween.Quart.easeOut;
-        if(this.options.type)
-        {
-        	if(this.options.type=='Linear')
-        	{
-        		tweenFn=Tween.Linear;
-        	}
-            else
-            {
-            	tweenFn=Tween[this.options.type][this.options.ease];
-            }
-        }
-
-        this.options.tweenFn=tweenFn||tweenFn;
-    },
-    complete: function (){
-        queues.shift();
-        if(queues.length>0)
-        {
-            queues[0].begin();
-            queues[0].move();
-        }
-
-        if(this.options.isReverse)
-        {
-        	this.makeReverse();
-        }
-        else
-        {
-        	this.attr(this.nodes[0], this.options.to);
-        	this.options.onComplete&&this.options.onComplete.call(this);
-        }
-        
+    // 运动完成
+    complete: function( attrs ) {
+        this.stop();
+        setStyle( this.node, attrs );
+        this.options.onComplete && this.options.onComplete.call( this );
     },
     // 回放
-    makeReverse: function (){
+    makeReverse: function() {
+        var _this = this,
+            keys = Object.keys( this.options.from ),
+            n = this.options.reverse[ keys[0] ].length,
+            name;
 
-    	var now=this.options.reverse.length,
-    		_this=this;
+        function callback_reverse() {
+            if( _this.isAnim ) {
+                if( --n > -1 ) {
+                    for( name in _this.options.from ) {
+                        setStyle( _this.node, name, _this.options.reverse[ name ][n] );
+                    }
 
-    	delete this.options.isReverse;
+                    global.requestAnimFrame( callback_reverse );
+                }
+                else {
+                    _this.complete( _this.options.from );
+                }
+            }
+        }
 
-    	(function move(){
-
-    		now--;
-    		if(now>-1)
-    		{
-    			for(var name in _this.options.reverse)
-    			{
-    				if(name!=='length')
-    				{
-
-    					_this.attr(_this.nodes[0], name, _this.options.reverse[name][now]);
-    				}
-    				
-    			}
-    			
-
-    			setTimeout(move, 1000/_this.fps)
-    		}
-    		else
-    		{
-    			_this.options.onComplete&&_this.options.onComplete.call(_this);
-    		}
-
-    	})();
+        global.requestAnimFrame( callback_reverse );
     },
-    // 队列
-    queue: function (){
-        queues.push(this);
-    },
-    run: function (){
-
-        this.queue();  
-        this.begin();
-        this.move();  
+    // 运行
+    run: function() {
+        this.start();
     }
 };
 
-golbal.Fx=Fx;
+global.Fx = Fx;
 
-})(this);
+})( this );
