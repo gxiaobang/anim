@@ -23,5 +23,4 @@ Animation Framework
 
 ```javascript
 new Fx();
-enjoy()
 ```
