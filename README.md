@@ -20,7 +20,3 @@ Animation Framework
 		isReverse: boolean //是否回放
 	}
 	run 执行动画
-
-```javascript
-new Fx();
-```
