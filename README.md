@@ -1,22 +1,43 @@
-fx
-==
+# tw.js
+## 轻量级的动画补间库
 
-Animation Framework
+## 使用示例
 
-### 动画模块　
-	new Fx(element)
-		.animOptions(options)
-		.run();
+### html部分
+```html
+<script src="./build/js/tw.js"></script>
+<div id="box"></div>
+```
 
-	animOptions设置参数:
-	Options 
-	{
-		to: {} //设置目标状态
-		from: {} //开始状态
-		duration: string //持续时间
-		type: string //动画类型
-		ease: string //缓动
-		onComplete: function //动画完成是执行
-		isReverse: boolean //是否回放
-	}
-	run 执行动画
+### css部分
+```css
+#box {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	
+	width: 100px;
+	height: 100px;
+	backgournd: yellow;
+}
+```
+
+### js部分
+```javascript
+tw('#box', {
+	// 起始位置(可选)
+	from: {
+		left: '10px',
+		top: '10px'
+	},
+	// 结束位置
+	to: {
+		left: '400px',
+		top: '500px'
+	},
+	// 持续时间(可选)
+	duration: '500ms',
+	// 缓动方式(可选)
+	ease: 'Quad.easeIn'
+});
+```
