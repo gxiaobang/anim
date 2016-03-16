@@ -5,7 +5,7 @@
  */
 
 import { getDom, getStyle, setStyle, requestAnim } from './util.js';
-import { tween } from './tween.js';
+import { ease } from './ease.js';
 
 // 补间动画
 class Tween {
@@ -15,7 +15,7 @@ class Tween {
 		this.from = props.from || {};
 		this.to = props.to || {};
 		this.duration = props.duration || '400ms';
-		this.easeFn = tween[props.ease];
+		this.easeFn = ease[props.ease];
 		this.run();
 	}
 	// 运行

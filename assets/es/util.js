@@ -55,8 +55,6 @@ const requestAnim = window.requestAnimationFrame ||
 										window.webkitRequestAnimationFrame ||
 										window.mozRequestAnimationFrame  ||
 										window.msRequestAnimationFrame  ||
-										(fn) => {
-											return setTimeout(fn, 1000 / 60);
-										};
+										(fn => setTimeout(fn, 1000 / 60));
 
 export { getDOM, getStyle, setStyle, requestAnim };
