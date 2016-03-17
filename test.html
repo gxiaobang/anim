@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>测试anim.js</title>
+	<style>
+	#box {
+		width: 100px;
+		height: 100px;
+		background: yellow;
+	}
+	</style>
+</head>
+<body>
+	<p>
+		<h1>测试anim.js</h1>
+	</p>
+	<p>
+		<div id="box"></div>
+	</p>
+	<p>
+		<div>
+			<select id="type">
+				<option value="Linear">Linear</option>
+				<option value="Quad">Quad</option>
+				<option value="Cubic">Cubic</option>
+				<option value="Quart">Quart</option>
+				<option value="Quint">Quint</option>
+				<option value="Sine">Sine</option>
+			</select>
+			<select id="ease">
+				<option value="easeIn">easeIn</option>
+				<option value="easeOut">easeOut</option>
+				<option value="easeInOut">easeInOut</option>
+			</select>
+			<button type="button" id="btn">运行</button>
+		</div>
+	</p>
+	<script src="./build/webpack/test.js"></script>
+</body>
+</html>

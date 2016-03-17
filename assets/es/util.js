@@ -31,7 +31,7 @@ const getStyle = ( el, name ) => {
 const setStyle = ( el, name, value ) => {
 	var props = {};
 	if (arguments.length == 3 && typeof name == 'string') {
-		poprs[ name ] = value;
+		props[ name ] = value;
 	}
 	else {
 		props = name;
