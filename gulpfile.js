@@ -13,7 +13,7 @@ var gulp = require('gulp'),
 
 var path = {
 	babel: {
-		src: './assets/es/**/*.js',
+		src: './assets/babel/**/*.js',
 		dest: './build/js/'
 	},
 	sass: {

@@ -13,7 +13,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = require('./util.js');
 
-var _Tween = require('./Tween.js');
+var _tween = require('./tween.js');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -106,12 +106,12 @@ var Anim = function () {
 
 	}, {
 		key: 'getTween',
-		value: function getTween(tween) {
-			var arr = tween.split('.');
+		value: function getTween(type) {
+			var arr = type.split('.');
 			if (arr[0] == 'Linear') {
-				return Tween[arr[0]];
+				return _tween.Tween[arr[0]];
 			} else {
-				return Tween[arr[0]][arr[1]];
+				return _tween.Tween[arr[0]][arr[1]];
 			}
 		}
 	}]);

@@ -5,7 +5,7 @@
  */
 
 import { getDOM, getStyle, setStyle, requestAnim } from './util.js';
-import { tween } from './Tween.js';
+import { Tween } from './tween.js';
 
 // 补间动画
 class Anim {
@@ -69,8 +69,8 @@ class Anim {
 	}
 
 	// 获取缓动公式
-	static getTween(tween) {
-		let arr = tween.split('.');
+	static getTween(type) {
+		let arr = type.split('.');
 		if (arr[0] == 'Linear') {
 			return Tween[arr[0]];
 		}
