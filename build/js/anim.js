@@ -7,7 +7,7 @@ exports.anim = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * tw.js
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 轻量级的动画补间库
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 微型动画库
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * by bang
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
@@ -25,24 +25,67 @@ var Anim = function () {
 
 		this.el = (0, _util.getDOM)(el)[0];
 		this.fn = {};
-		this.from = options.from || {};
-		this.to = options.to || {};
-		this.duration = Anim.toMs(options.duration) || '400';
-		this.easeFn = Anim.getTween(options.tween);
-		this.run();
+		this.queue = [];
+		this.addQueue(options);
 	}
-	// 运行
+
+	// 清除
 
 
 	_createClass(Anim, [{
+		key: 'stop',
+		value: function stop() {
+			this.animated = false;
+			this.shiftQueue();
+			return this;
+		}
+
+		// 添加队列
+
+	}, {
+		key: 'addQueue',
+		value: function addQueue(_ref) {
+			var from = _ref.from;
+			var to = _ref.to;
+			var duration = _ref.duration;
+			var tween = _ref.tween;
+
+			this.queue.push({
+				from: from || {},
+				to: to || {},
+				duration: Anim.toMs(duration) || '400',
+				easeFn: Anim.getTween(tween)
+			});
+		}
+		// 清除队列
+
+	}, {
+		key: 'clearQueue',
+		value: function clearQueue() {
+			this.queue = [];
+		}
+	}, {
+		key: 'shiftQueue',
+		value: function shiftQueue() {
+			this.queue.unshift();
+		}
+
+		// 运行
+
+	}, {
 		key: 'run',
 		value: function run() {
 			var _this = this;
 
 			this.begin();
+			var duration = this.queue[0].duration;
+
 			var loop = function loop() {
+				// 停止
+				if (!_this.animated) return;
+
 				_this.elespedTime = +new Date() - _this.startTime;
-				if (_this.elespedTime > _this.duration) {
+				if (_this.elespedTime > duration) {
 					_this.complete();
 				} else {
 					_this.moving();
@@ -51,46 +94,76 @@ var Anim = function () {
 			};
 
 			(0, _util.requestAnim)(loop);
+			return this;
 		}
 		// 开始
 
 	}, {
 		key: 'begin',
 		value: function begin() {
+			this.animated = true;
 			this.startTime = +new Date();
-			for (var name in this.to) {
-				if (!this.from.hasOwnProperty(name)) {
-					this.from[name] = parseFloat((0, _util.getStyle)(this.el, name));
+
+			var _queue$ = this.queue[0];
+			var from = _queue$.from;
+			var to = _queue$.to;
+
+
+			for (var name in to) {
+				if (!from.hasOwnProperty(name)) {
+					from[name] = parseFloat((0, _util.getStyle)(this.el, name));
 				}
 			}
 			this.fn.begin && this.fn.begin();
+			return this;
 		}
 		// 执行动画中，按fps触发
 
 	}, {
 		key: 'moving',
 		value: function moving() {
-			var t = void 0,
-			    b = void 0,
-			    c = void 0,
-			    d = void 0;
-			for (var name in this.to) {
-				t = this.elespedTime;
-				b = parseFloat(this.from[name]);
-				c = parseFloat(this.to[name]) - b;
-				d = this.duration;
+			var t, b, c, d;
+			var _queue$2 = this.queue[0];
+			var from = _queue$2.from;
+			var to = _queue$2.to;
+			var duration = _queue$2.duration;
+			var easeFn = _queue$2.easeFn;
 
-				(0, _util.setStyle)(this.el, name, this.easeFn(t, b, c, d));
+			for (var name in to) {
+				t = this.elespedTime;
+				b = parseFloat(from[name]);
+				c = parseFloat(to[name]) - b;
+				d = duration;
+
+				(0, _util.setStyle)(this.el, name, easeFn(t, b, c, d));
 			}
 			this.fn.moving && this.fn.moving();
+			return this;
 		}
 		// 完成动画
 
 	}, {
 		key: 'complete',
 		value: function complete() {
-			(0, _util.setStyle)(this.el, this.to);
+			var to = this.queue[0].to;
+
+			this.animated = false;
+			(0, _util.setStyle)(this.el, to);
+			this.shiftQueue();
 			this.fn.complete && this.fn.complete();
+			return this;
+		}
+	}, {
+		key: 'set',
+		value: function set(prop, value) {
+			switch (prop) {
+				case 'tween':
+					this.queue[0].easeFn = Anim.getTween(value);
+					break;
+				default:
+					this.queue[0][prop] = value;
+			}
+			return this;
 		}
 
 		// 转化成毫秒
@@ -107,11 +180,13 @@ var Anim = function () {
 	}, {
 		key: 'getTween',
 		value: function getTween(type) {
-			var arr = type.split('.');
-			if (arr[0] == 'Linear') {
-				return _tween.Tween[arr[0]];
-			} else {
-				return _tween.Tween[arr[0]][arr[1]];
+			if (typeof type == 'string') {
+				var arr = type.split('.');
+				if (arr[0] == 'Linear') {
+					return _tween.Tween[arr[0]];
+				} else {
+					return _tween.Tween[arr[0]][arr[1]];
+				}
 			}
 		}
 	}]);
@@ -119,7 +194,7 @@ var Anim = function () {
 	return Anim;
 }();
 
-var anim = exports.anim = function anim(el, props) {
-	new Anim(el, props);
+var anim = exports.anim = function anim(el, options) {
+	return new Anim(el, options);
 };
 //# sourceMappingURL=anim.js.map

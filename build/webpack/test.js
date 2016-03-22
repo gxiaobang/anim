@@ -51,24 +51,26 @@
 	var _util = __webpack_require__(2);
 
 	var type = (0, _util.getDOM)('#type')[0],
-	    ease = (0, _util.getDOM)('#ease')[0],
-	    btn = (0, _util.getDOM)('#btn')[0];
+	    ease = (0, _util.getDOM)('#ease')[0];
 
-	btn.onclick = function () {
-		(0, _anim.anim)('#box', {
-			// 起始位置(可选)
-			from: {
-				marginLeft: '10px'
-			},
-			// 结束位置
-			to: {
-				marginLeft: '500px'
-			},
-			// 持续时间(可选)
-			duration: '500ms',
-			// 缓动方式(可选)
-			tween: type.value + '.' + ease.value
-		});
+	var animObj = (0, _anim.anim)('#box', {
+		// 起始位置(可选)
+		from: {
+			left: '10px'
+		},
+		// 结束位置
+		to: {
+			left: '600px'
+		},
+		// 持续时间(可选)
+		duration: '1000ms'
+	});
+
+	(0, _util.getDOM)('#btnRun')[0].onclick = function () {
+		return animObj.set('tween', type.value + '.' + ease.value).run();
+	};
+	(0, _util.getDOM)('#btnStop')[0].onclick = function () {
+		return animObj.stop();
 	};
 	//# sourceMappingURL=test.js.map
 
@@ -86,7 +88,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * tw.js
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 轻量级的动画补间库
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 微型动画库
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * by bang
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 
@@ -104,24 +106,67 @@
 
 			this.el = (0, _util.getDOM)(el)[0];
 			this.fn = {};
-			this.from = options.from || {};
-			this.to = options.to || {};
-			this.duration = Anim.toMs(options.duration) || '400';
-			this.easeFn = Anim.getTween(options.tween);
-			this.run();
+			this.queue = [];
+			this.addQueue(options);
 		}
-		// 运行
+
+		// 清除
 
 
 		_createClass(Anim, [{
+			key: 'stop',
+			value: function stop() {
+				this.animated = false;
+				this.shiftQueue();
+				return this;
+			}
+
+			// 添加队列
+
+		}, {
+			key: 'addQueue',
+			value: function addQueue(_ref) {
+				var from = _ref.from;
+				var to = _ref.to;
+				var duration = _ref.duration;
+				var tween = _ref.tween;
+
+				this.queue.push({
+					from: from || {},
+					to: to || {},
+					duration: Anim.toMs(duration) || '400',
+					easeFn: Anim.getTween(tween)
+				});
+			}
+			// 清除队列
+
+		}, {
+			key: 'clearQueue',
+			value: function clearQueue() {
+				this.queue = [];
+			}
+		}, {
+			key: 'shiftQueue',
+			value: function shiftQueue() {
+				this.queue.unshift();
+			}
+
+			// 运行
+
+		}, {
 			key: 'run',
 			value: function run() {
 				var _this = this;
 
 				this.begin();
+				var duration = this.queue[0].duration;
+
 				var loop = function loop() {
+					// 停止
+					if (!_this.animated) return;
+
 					_this.elespedTime = +new Date() - _this.startTime;
-					if (_this.elespedTime > _this.duration) {
+					if (_this.elespedTime > duration) {
 						_this.complete();
 					} else {
 						_this.moving();
@@ -130,46 +175,76 @@
 				};
 
 				(0, _util.requestAnim)(loop);
+				return this;
 			}
 			// 开始
 
 		}, {
 			key: 'begin',
 			value: function begin() {
+				this.animated = true;
 				this.startTime = +new Date();
-				for (var name in this.to) {
-					if (!this.from.hasOwnProperty(name)) {
-						this.from[name] = parseFloat((0, _util.getStyle)(this.el, name));
+
+				var _queue$ = this.queue[0];
+				var from = _queue$.from;
+				var to = _queue$.to;
+
+
+				for (var name in to) {
+					if (!from.hasOwnProperty(name)) {
+						from[name] = parseFloat((0, _util.getStyle)(this.el, name));
 					}
 				}
 				this.fn.begin && this.fn.begin();
+				return this;
 			}
 			// 执行动画中，按fps触发
 
 		}, {
 			key: 'moving',
 			value: function moving() {
-				var t = void 0,
-				    b = void 0,
-				    c = void 0,
-				    d = void 0;
-				for (var name in this.to) {
-					t = this.elespedTime;
-					b = parseFloat(this.from[name]);
-					c = parseFloat(this.to[name]) - b;
-					d = this.duration;
+				var t, b, c, d;
+				var _queue$2 = this.queue[0];
+				var from = _queue$2.from;
+				var to = _queue$2.to;
+				var duration = _queue$2.duration;
+				var easeFn = _queue$2.easeFn;
 
-					(0, _util.setStyle)(this.el, name, this.easeFn(t, b, c, d));
+				for (var name in to) {
+					t = this.elespedTime;
+					b = parseFloat(from[name]);
+					c = parseFloat(to[name]) - b;
+					d = duration;
+
+					(0, _util.setStyle)(this.el, name, easeFn(t, b, c, d));
 				}
 				this.fn.moving && this.fn.moving();
+				return this;
 			}
 			// 完成动画
 
 		}, {
 			key: 'complete',
 			value: function complete() {
-				(0, _util.setStyle)(this.el, this.to);
+				var to = this.queue[0].to;
+
+				this.animated = false;
+				(0, _util.setStyle)(this.el, to);
+				this.shiftQueue();
 				this.fn.complete && this.fn.complete();
+				return this;
+			}
+		}, {
+			key: 'set',
+			value: function set(prop, value) {
+				switch (prop) {
+					case 'tween':
+						this.queue[0].easeFn = Anim.getTween(value);
+						break;
+					default:
+						this.queue[0][prop] = value;
+				}
+				return this;
 			}
 
 			// 转化成毫秒
@@ -186,11 +261,13 @@
 		}, {
 			key: 'getTween',
 			value: function getTween(type) {
-				var arr = type.split('.');
-				if (arr[0] == 'Linear') {
-					return _tween.Tween[arr[0]];
-				} else {
-					return _tween.Tween[arr[0]][arr[1]];
+				if (typeof type == 'string') {
+					var arr = type.split('.');
+					if (arr[0] == 'Linear') {
+						return _tween.Tween[arr[0]];
+					} else {
+						return _tween.Tween[arr[0]][arr[1]];
+					}
 				}
 			}
 		}]);
@@ -198,8 +275,8 @@
 		return Anim;
 	}();
 
-	var anim = exports.anim = function anim(el, props) {
-		new Anim(el, props);
+	var anim = exports.anim = function anim(el, options) {
+		return new Anim(el, options);
 	};
 	//# sourceMappingURL=anim.js.map
 
@@ -219,6 +296,14 @@
 	 * 工具类
 	 * by bang
 	 */
+
+	var noop = function noop() {};
+
+	var named = function named(name) {
+		return name.replace(/[-]\w/g, function (a) {
+			return a.charAt(1).toUpperCase();
+		});
+	};
 
 	// 获取dom节点
 	var getDOM = function getDOM(expr) {
@@ -265,13 +350,38 @@
 		}
 	};
 
+	// 动画帧
 	var requestAnim = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || function (fn) {
 		return setTimeout(fn, 1000 / 60);
+	};
+
+	// 遍历类数组
+	var forEach = function forEach(array, func) {
+		if (isFunction(func)) {
+			for (var i = 0, len = array.length; i < len; i++) {
+				if (func(array[i], i) === false) break;
+			}
+		}
+	};
+
+	// 混合 类似于extend
+	var mixin = function mixin(target) {
+		for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+			sources[_key - 1] = arguments[_key];
+		}
+
+		forEach(sources, function (source) {
+			for (var key in source) {
+				target[key] = source[key];
+			}
+		});
+		return target;
 	};
 
 	exports.getDOM = getDOM;
 	exports.getStyle = getStyle;
 	exports.setStyle = setStyle;
+	exports.mixin = mixin;
 	exports.requestAnim = requestAnim;
 	//# sourceMappingURL=util.js.map
 

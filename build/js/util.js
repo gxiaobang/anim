@@ -10,6 +10,14 @@ var _arguments = arguments;
  * by bang
  */
 
+var noop = function noop() {};
+
+var named = function named(name) {
+	return name.replace(/[-]\w/g, function (a) {
+		return a.charAt(1).toUpperCase();
+	});
+};
+
 // 获取dom节点
 var getDOM = function getDOM(expr) {
 	var root = arguments.length <= 1 || arguments[1] === undefined ? document : arguments[1];
@@ -55,12 +63,37 @@ var setStyle = function setStyle(el, name, value) {
 	}
 };
 
+// 动画帧
 var requestAnim = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || function (fn) {
 	return setTimeout(fn, 1000 / 60);
+};
+
+// 遍历类数组
+var forEach = function forEach(array, func) {
+	if (isFunction(func)) {
+		for (var i = 0, len = array.length; i < len; i++) {
+			if (func(array[i], i) === false) break;
+		}
+	}
+};
+
+// 混合 类似于extend
+var mixin = function mixin(target) {
+	for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+		sources[_key - 1] = arguments[_key];
+	}
+
+	forEach(sources, function (source) {
+		for (var key in source) {
+			target[key] = source[key];
+		}
+	});
+	return target;
 };
 
 exports.getDOM = getDOM;
 exports.getStyle = getStyle;
 exports.setStyle = setStyle;
+exports.mixin = mixin;
 exports.requestAnim = requestAnim;
 //# sourceMappingURL=util.js.map

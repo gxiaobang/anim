@@ -4,6 +4,12 @@
  * by bang
  */
 
+const noop = () => {};
+
+const named = (name) => {
+	return name.replace(/[-]\w/g, a => a.charAt(1).toUpperCase());
+}
+
 // 获取dom节点
 const getDOM = ( expr, root = document ) => {
 	return root.querySelectorAll(expr);
@@ -51,10 +57,31 @@ const setStyle = ( el, name, value ) => {
 	}
 };
 
+// 动画帧
 const requestAnim = window.requestAnimationFrame || 
-										window.webkitRequestAnimationFrame ||
-										window.mozRequestAnimationFrame  ||
-										window.msRequestAnimationFrame  ||
-										(fn => setTimeout(fn, 1000 / 60));
+							window.webkitRequestAnimationFrame ||
+							window.mozRequestAnimationFrame  ||
+							window.msRequestAnimationFrame  ||
+							(fn => setTimeout(fn, 1000 / 60));
 
-export { getDOM, getStyle, setStyle, requestAnim };
+// 遍历类数组
+const forEach = (array, func) => {
+	if (isFunction(func)) {
+		for (var i = 0, len = array.length; i < len; i++) {
+			if (func(array[i], i) === false) break;
+		}
+	}
+};
+
+// 混合 类似于extend
+const mixin = (target, ...sources) => {
+	forEach(sources, (source) => {
+		for (let key in source) {
+			target[ key ] = source[ key ];
+		}
+	});
+	return target;
+};
+
+
+export { getDOM, getStyle, setStyle, mixin, requestAnim };
