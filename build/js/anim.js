@@ -24,9 +24,13 @@ var Anim = function () {
 		_classCallCheck(this, Anim);
 
 		this.el = (0, _util.getDOM)(el)[0];
-		this.fn = {};
+		this.fn = {
+			begin: [],
+			moving: [],
+			complete: []
+		};
 		this.queue = [];
-		this.addQueue(options);
+		this.addQueue(options || {});
 	}
 
 	// 清除
@@ -38,6 +42,58 @@ var Anim = function () {
 			this.animated = false;
 			this.shiftQueue();
 			return this;
+		}
+	}, {
+		key: 'on',
+		value: function on(type, fn) {
+			if ((0, _util.isFunction)(fn)) {
+				switch (type) {
+					case 'begin':
+					case 'moving':
+					case 'complete':
+						this.fn[type].push(fn);
+						break;
+				}
+			}
+			return this;
+		}
+	}, {
+		key: 'un',
+		value: function un(type, fn) {
+			switch (type) {
+				case 'begin':
+				case 'moving':
+				case 'complete':
+					if (fn) {
+						for (var i = 0, f; f = this.fn[type][i]; i++) {
+							if (f === fn) {
+								this.fn[type].splice(i, 1);
+								i--;
+							}
+						}
+					} else {
+						this.fn[type].length = 0;
+					}
+			}
+			return this;
+		}
+
+		// 触发事件
+
+	}, {
+		key: 'trigger',
+		value: function trigger(fn, obj) {
+			for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+				args[_key - 2] = arguments[_key];
+			}
+
+			if ((0, _util.isFunction)(fn)) {
+				fn.call.apply(fn, [obj].concat(args));
+			} else if ((0, _util.isArray)(fn)) {
+				fn.forEach(function (f) {
+					f.call.apply(f, [obj].concat(args));
+				});
+			}
 		}
 
 		// 添加队列
@@ -111,10 +167,10 @@ var Anim = function () {
 
 			for (var name in to) {
 				if (!from.hasOwnProperty(name)) {
-					from[name] = parseFloat((0, _util.getStyle)(this.el, name));
+					from[name] = parseFloat((0, _util.getStyle)(this.el, name)) || 0;
 				}
 			}
-			this.fn.begin && this.fn.begin();
+			this.trigger(this.fn.begin, this, this.el);
 			return this;
 		}
 		// 执行动画中，按fps触发
@@ -137,7 +193,7 @@ var Anim = function () {
 
 				(0, _util.setStyle)(this.el, name, easeFn(t, b, c, d));
 			}
-			this.fn.moving && this.fn.moving();
+			this.trigger(this.fn.moving, this, this.el);
 			return this;
 		}
 		// 完成动画
@@ -150,7 +206,7 @@ var Anim = function () {
 			this.animated = false;
 			(0, _util.setStyle)(this.el, to);
 			this.shiftQueue();
-			this.fn.complete && this.fn.complete();
+			this.trigger(this.fn.complete, this, this.el);
 			return this;
 		}
 	}, {

@@ -4,7 +4,21 @@
  * by bang
  */
 
+
 const noop = () => {};
+
+// 类型判断
+const obt = Object.prototype.toString;
+const isType = (type) => {
+	return (obj) => obt.call(obj) === `[object ${type}]`;
+}
+
+const isObject = isType('Object'),
+			isArray = isType('Array'),
+			isNumber = isType('Number'),
+			isString = isType('String'),
+			isFunction = isType('Function');
+
 
 const named = (name) => {
 	return name.replace(/[-]\w/g, a => a.charAt(1).toUpperCase());
@@ -13,6 +27,11 @@ const named = (name) => {
 // 获取dom节点
 const getDOM = ( expr, root = document ) => {
 	return root.querySelectorAll(expr);
+};
+
+// 获取索引
+const getIndex = (el) => {
+	return [].indexOf.call(el.parent.children, el);
 };
 
 // 设置样式
@@ -35,6 +54,14 @@ const getStyle = ( el, name ) => {
 
 // 获取样式
 const setStyle = ( el, name, value ) => {
+
+	if (isString(el)) {
+		el = getDOM(el)[0];
+	}
+	else if (isArray(el)) {
+		forEach(el, elem => setStyle(elem, name, value));
+	}
+
 	var props = {};
 	if (arguments.length == 3 && typeof name == 'string') {
 		props[ name ] = value;
@@ -83,5 +110,48 @@ const mixin = (target, ...sources) => {
 	return target;
 };
 
+// http请求
+const http = ({ method, url = '', param = null,  
+		beforeSend = noop, success = noop, 
+		error = noop, complete = noop }) => {
+	var xhr;
+	if (window.XMLHttpRequrest) {
+		xhr = new XMLHttpRequrest();
+	}
+	else {
 
-export { getDOM, getStyle, setStyle, mixin, requestAnim };
+	}
+
+	xhr.onstatechange = () => {
+		if (xhr.readyState == 4) {
+			switch (xhr.status) {
+				case 200:
+				// 有缓存
+				case 302:
+					success(xhr.reText, xhr);
+					break;
+				case 404:
+				case 500:
+					error(xhr.statusText, xhr);
+					break;
+			}
+			complete(xhr.statusText, xhr);
+		}
+	}
+
+	beforeSend();
+	if (method == 'POST') {
+		xhr.open('POST', url, true);
+		xhr.send();
+	}
+	else {
+		xhr.open();
+		xhr.send();
+	}
+};
+
+
+export { 
+	isObject, isNumber, isArray, isString, isFunction,
+	getDOM, getStyle, setStyle, mixin, http, requestAnim 
+};

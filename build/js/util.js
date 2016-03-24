@@ -12,6 +12,20 @@ var _arguments = arguments;
 
 var noop = function noop() {};
 
+// 类型判断
+var obt = Object.prototype.toString;
+var isType = function isType(type) {
+	return function (obj) {
+		return obt.call(obj) === '[object ' + type + ']';
+	};
+};
+
+var isObject = isType('Object'),
+    isArray = isType('Array'),
+    isNumber = isType('Number'),
+    isString = isType('String'),
+    isFunction = isType('Function');
+
 var named = function named(name) {
 	return name.replace(/[-]\w/g, function (a) {
 		return a.charAt(1).toUpperCase();
@@ -23,6 +37,11 @@ var getDOM = function getDOM(expr) {
 	var root = arguments.length <= 1 || arguments[1] === undefined ? document : arguments[1];
 
 	return root.querySelectorAll(expr);
+};
+
+// 获取索引
+var getIndex = function getIndex(el) {
+	return [].indexOf.call(el.parent.children, el);
 };
 
 // 设置样式
@@ -44,6 +63,15 @@ var getStyle = function getStyle(el, name) {
 
 // 获取样式
 var setStyle = function setStyle(el, name, value) {
+
+	if (isString(el)) {
+		el = getDOM(el)[0];
+	} else if (isArray(el)) {
+		forEach(el, function (elem) {
+			return setStyle(elem, name, value);
+		});
+	}
+
 	var props = {};
 	if (_arguments.length == 3 && typeof name == 'string') {
 		props[name] = value;
@@ -91,9 +119,63 @@ var mixin = function mixin(target) {
 	return target;
 };
 
+// http请求
+var http = function http(_ref) {
+	var method = _ref.method;
+	var _ref$url = _ref.url;
+	var url = _ref$url === undefined ? '' : _ref$url;
+	var _ref$param = _ref.param;
+	var param = _ref$param === undefined ? null : _ref$param;
+	var _ref$beforeSend = _ref.beforeSend;
+	var beforeSend = _ref$beforeSend === undefined ? noop : _ref$beforeSend;
+	var _ref$success = _ref.success;
+	var success = _ref$success === undefined ? noop : _ref$success;
+	var _ref$error = _ref.error;
+	var error = _ref$error === undefined ? noop : _ref$error;
+	var _ref$complete = _ref.complete;
+	var complete = _ref$complete === undefined ? noop : _ref$complete;
+
+	var xhr;
+	if (window.XMLHttpRequrest) {
+		xhr = new XMLHttpRequrest();
+	} else {}
+
+	xhr.onstatechange = function () {
+		if (xhr.readyState == 4) {
+			switch (xhr.status) {
+				case 200:
+				// 有缓存
+				case 302:
+					success(xhr.reText, xhr);
+					break;
+				case 404:
+				case 500:
+					error(xhr.statusText, xhr);
+					break;
+			}
+			complete(xhr.statusText, xhr);
+		}
+	};
+
+	beforeSend();
+	if (method == 'POST') {
+		xhr.open('POST', url, true);
+		xhr.send();
+	} else {
+		xhr.open();
+		xhr.send();
+	}
+};
+
+exports.isObject = isObject;
+exports.isNumber = isNumber;
+exports.isArray = isArray;
+exports.isString = isString;
+exports.isFunction = isFunction;
 exports.getDOM = getDOM;
 exports.getStyle = getStyle;
 exports.setStyle = setStyle;
 exports.mixin = mixin;
+exports.http = http;
 exports.requestAnim = requestAnim;
 //# sourceMappingURL=util.js.map

@@ -4,16 +4,20 @@
  * by bang
  */
 
-import { getDOM, getStyle, setStyle, requestAnim } from './util.js';
+import { isFunction, isArray, getDOM, getStyle, setStyle, requestAnim } from './util.js';
 import { Tween } from './tween.js';
 
 // 补间动画
 class Anim {
 	constructor(el, options) {
 		this.el = getDOM(el)[0];
-		this.fn = {};
+		this.fn = {
+			begin: [],
+			moving: [],
+			complete: []
+		};
 		this.queue = [];
-		this.addQueue(options);
+		this.addQueue(options || {});
 	}
 
 	// 清除
@@ -21,6 +25,51 @@ class Anim {
 		this.animated = false;
 		this.shiftQueue();
 		return this;
+	}
+
+	on(type, fn) {
+		if (isFunction(fn)) {
+			switch (type) {
+				case 'begin':
+				case 'moving':
+				case 'complete':
+					this.fn[ type ].push(fn);
+					break;
+			}
+		}
+		return this;
+	}
+
+	un(type, fn) {
+		switch (type) {
+			case 'begin':
+			case 'moving':
+			case 'complete':
+				if (fn) {
+					for (let i = 0, f; f = this.fn[ type ][ i ]; i++) {
+						if (f === fn) {
+							this.fn[ type ].splice(i, 1);
+							i--;
+						}
+					}
+				}
+				else {
+					this.fn[ type ].length = 0;
+				}
+		}
+		return this;
+	}
+
+	// 触发事件
+	trigger(fn, obj, ...args) {
+		if (isFunction(fn)) {
+			fn.call(obj, ...args);
+		}
+		else if (isArray(fn)) {
+			fn.forEach((f) => {
+				f.call(obj, ...args);
+			});
+		}
 	}
 
 	// 添加队列
@@ -71,10 +120,10 @@ class Anim {
 
 		for (let name in to) {
 			if (!from.hasOwnProperty(name)) {
-				from[ name ] = parseFloat(getStyle(this.el, name));
+				from[ name ] = parseFloat(getStyle(this.el, name)) || 0;
 			}
 		}
-		this.fn.begin && this.fn.begin();
+		this.trigger(this.fn.begin, this, this.el);
 		return this;
 	}
 	// 执行动画中，按fps触发
@@ -89,7 +138,7 @@ class Anim {
 
 			setStyle(this.el, name, easeFn(t, b, c, d));
 		}
-		this.fn.moving && this.fn.moving();
+		this.trigger(this.fn.moving, this, this.el);
 		return this;
 	}
 	// 完成动画
@@ -98,7 +147,7 @@ class Anim {
 		this.animated = false;
 		setStyle(this.el, to);
 		this.shiftQueue();
-		this.fn.complete && this.fn.complete();
+		this.trigger(this.fn.complete, this, this.el);
 		return this;
 	}
 
