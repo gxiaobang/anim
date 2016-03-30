@@ -1,41 +1,41 @@
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
 /******/ })
@@ -45,63 +45,61 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
+	
 	var _anim = __webpack_require__(1);
-
+	
 	var _util = __webpack_require__(2);
-
+	
 	var type = (0, _util.getDOM)('#type')[0],
 	    ease = (0, _util.getDOM)('#ease')[0],
 	    distance = (0, _util.getDOM)('#distance')[0],
 	    duration = (0, _util.getDOM)('#duration')[0];
-
+	
 	var animObj = (0, _anim.anim)('#box');
-
+	
 	(0, _util.getDOM)('#btnRun')[0].onclick = function () {
 			animObj.set('tween', type.value + '.' + ease.value).set('from', {}).set('to', { left: distance.value }).set('duration', duration.value).un('complete').on('complete', function () {
 					console.log('animatte is complete.');
 			}).run();
 	};
-
+	
 	(0, _util.getDOM)('#btnStop')[0].onclick = function () {
 			return animObj.stop();
 	};
-
+	
 	(0, _util.getDOM)('#btnReset')[0].onclick = function () {
 			return (0, _util.setStyle)('#box', { left: 0 });
 	};
-	//# sourceMappingURL=test.js.map
-
 
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
+	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 	exports.anim = undefined;
-
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * tw.js
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 微型动画库
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * by bang
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
+	
 	var _util = __webpack_require__(2);
-
+	
 	var _tween = __webpack_require__(3);
-
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+	
 	// 补间动画
-
+	
 	var Anim = function () {
 		function Anim(el, options) {
 			_classCallCheck(this, Anim);
-
+	
 			this.el = (0, _util.getDOM)(el)[0];
 			this.fn = {
 				begin: [],
@@ -111,10 +109,10 @@
 			this.queue = [];
 			this.addQueue(options || {});
 		}
-
+	
 		// 清除
-
-
+	
+	
 		_createClass(Anim, [{
 			key: 'stop',
 			value: function stop() {
@@ -156,16 +154,16 @@
 				}
 				return this;
 			}
-
+	
 			// 触发事件
-
+	
 		}, {
 			key: 'trigger',
 			value: function trigger(fn, obj) {
 				for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
 					args[_key - 2] = arguments[_key];
 				}
-
+	
 				if ((0, _util.isFunction)(fn)) {
 					fn.call.apply(fn, [obj].concat(args));
 				} else if ((0, _util.isArray)(fn)) {
@@ -174,9 +172,9 @@
 					});
 				}
 			}
-
+	
 			// 添加队列
-
+	
 		}, {
 			key: 'addQueue',
 			value: function addQueue(_ref) {
@@ -184,7 +182,7 @@
 				var to = _ref.to;
 				var duration = _ref.duration;
 				var tween = _ref.tween;
-
+	
 				this.queue.push({
 					from: from || {},
 					to: to || {},
@@ -193,7 +191,7 @@
 				});
 			}
 			// 清除队列
-
+	
 		}, {
 			key: 'clearQueue',
 			value: function clearQueue() {
@@ -204,21 +202,21 @@
 			value: function shiftQueue() {
 				this.queue.unshift();
 			}
-
+	
 			// 运行
-
+	
 		}, {
 			key: 'run',
 			value: function run() {
 				var _this = this;
-
+	
 				this.begin();
 				var duration = this.queue[0].duration;
-
+	
 				var loop = function loop() {
 					// 停止
 					if (!_this.animated) return;
-
+	
 					_this.elespedTime = +new Date() - _this.startTime;
 					if (_this.elespedTime > duration) {
 						_this.complete();
@@ -227,23 +225,23 @@
 						(0, _util.requestAnim)(loop);
 					}
 				};
-
+	
 				(0, _util.requestAnim)(loop);
 				return this;
 			}
 			// 开始
-
+	
 		}, {
 			key: 'begin',
 			value: function begin() {
 				this.animated = true;
 				this.startTime = +new Date();
-
+	
 				var _queue$ = this.queue[0];
 				var from = _queue$.from;
 				var to = _queue$.to;
-
-
+	
+	
 				for (var name in to) {
 					if (!from.hasOwnProperty(name)) {
 						from[name] = parseFloat((0, _util.getStyle)(this.el, name)) || 0;
@@ -253,7 +251,7 @@
 				return this;
 			}
 			// 执行动画中，按fps触发
-
+	
 		}, {
 			key: 'moving',
 			value: function moving() {
@@ -263,25 +261,25 @@
 				var to = _queue$2.to;
 				var duration = _queue$2.duration;
 				var easeFn = _queue$2.easeFn;
-
+	
 				for (var name in to) {
 					t = this.elespedTime;
 					b = parseFloat(from[name]);
 					c = parseFloat(to[name]) - b;
 					d = duration;
-
+	
 					(0, _util.setStyle)(this.el, name, easeFn(t, b, c, d));
 				}
 				this.trigger(this.fn.moving, this, this.el);
 				return this;
 			}
 			// 完成动画
-
+	
 		}, {
 			key: 'complete',
 			value: function complete() {
 				var to = this.queue[0].to;
-
+	
 				this.animated = false;
 				(0, _util.setStyle)(this.el, to);
 				this.shiftQueue();
@@ -300,18 +298,18 @@
 				}
 				return this;
 			}
-
+	
 			// 转化成毫秒
-
+	
 		}], [{
 			key: 'toMs',
 			value: function toMs(ms) {
 				return (/\ds$/.test(ms) ? parseFloat(ms) * 1000 : parseFloat(ms)
 				);
 			}
-
+	
 			// 获取缓动公式
-
+	
 		}, {
 			key: 'getTween',
 			value: function getTween(type) {
@@ -325,22 +323,20 @@
 				}
 			}
 		}]);
-
+	
 		return Anim;
 	}();
-
+	
 	var anim = exports.anim = function anim(el, options) {
 		return new Anim(el, options);
 	};
-	//# sourceMappingURL=anim.js.map
-
 
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
-
+	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -350,9 +346,9 @@
 	 * 工具类
 	 * by bang
 	 */
-
+	
 	var noop = function noop() {};
-
+	
 	// 类型判断
 	var obt = Object.prototype.toString;
 	var isType = function isType(type) {
@@ -360,31 +356,31 @@
 			return obt.call(obj) === '[object ' + type + ']';
 		};
 	};
-
+	
 	var isObject = isType('Object'),
 	    isArray = isType('Array'),
 	    isNumber = isType('Number'),
 	    isString = isType('String'),
 	    isFunction = isType('Function');
-
+	
 	var named = function named(name) {
 		return name.replace(/[-]\w/g, function (a) {
 			return a.charAt(1).toUpperCase();
 		});
 	};
-
+	
 	// 获取dom节点
 	var getDOM = function getDOM(expr) {
 		var root = arguments.length <= 1 || arguments[1] === undefined ? document : arguments[1];
-
+	
 		return root.querySelectorAll(expr);
 	};
-
+	
 	// 获取索引
 	var getIndex = function getIndex(el) {
 		return [].indexOf.call(el.parent.children, el);
 	};
-
+	
 	// 设置样式
 	var getStyle = function getStyle(el, name) {
 		// 标准
@@ -401,10 +397,10 @@
 				}
 			}
 	};
-
+	
 	// 获取样式
 	var setStyle = function setStyle(el, name, value) {
-
+	
 		if (isString(el)) {
 			el = getDOM(el)[0];
 		} else if (isArray(el)) {
@@ -412,14 +408,14 @@
 				return setStyle(elem, name, value);
 			});
 		}
-
+	
 		var props = {};
 		if (_arguments.length == 3 && typeof name == 'string') {
 			props[name] = value;
 		} else {
 			props = name;
 		}
-
+	
 		for (var _name in props) {
 			if (_name == 'opacity') {
 				el.style.opacity = props[_name];
@@ -431,12 +427,12 @@
 			}
 		}
 	};
-
+	
 	// 动画帧
 	var requestAnim = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || function (fn) {
 		return setTimeout(fn, 1000 / 60);
 	};
-
+	
 	// 遍历类数组
 	var forEach = function forEach(array, func) {
 		if (isFunction(func)) {
@@ -445,13 +441,13 @@
 			}
 		}
 	};
-
+	
 	// 混合 类似于extend
 	var mixin = function mixin(target) {
 		for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 			sources[_key - 1] = arguments[_key];
 		}
-
+	
 		forEach(sources, function (source) {
 			for (var key in source) {
 				target[key] = source[key];
@@ -459,7 +455,7 @@
 		});
 		return target;
 	};
-
+	
 	// http请求
 	var http = function http(_ref) {
 		var method = _ref.method;
@@ -475,12 +471,12 @@
 		var error = _ref$error === undefined ? noop : _ref$error;
 		var _ref$complete = _ref.complete;
 		var complete = _ref$complete === undefined ? noop : _ref$complete;
-
+	
 		var xhr;
-		if (window.XMLHttpRequrest) {
-			xhr = new XMLHttpRequrest();
+		if (window.XMLHttpRequest) {
+			xhr = new XMLHttpRequest();
 		} else {}
-
+	
 		xhr.onstatechange = function () {
 			if (xhr.readyState == 4) {
 				switch (xhr.status) {
@@ -497,7 +493,7 @@
 				complete(xhr.statusText, xhr);
 			}
 		};
-
+	
 		beforeSend();
 		if (method == 'POST') {
 			xhr.open('POST', url, true);
@@ -507,7 +503,7 @@
 			xhr.send();
 		}
 	};
-
+	
 	exports.isObject = isObject;
 	exports.isNumber = isNumber;
 	exports.isArray = isArray;
@@ -519,27 +515,25 @@
 	exports.mixin = mixin;
 	exports.http = http;
 	exports.requestAnim = requestAnim;
-	//# sourceMappingURL=util.js.map
-
 
 /***/ },
 /* 3 */
 /***/ function(module, exports) {
 
 	"use strict";
-
+	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 	/**
 	 * 缓动公式
 	 */
-
+	
 	var Tween = {
 		Linear: function Linear(t, b, c, d) {
 			return c * t / d + b;
 		},
-
+	
 		Quad: {
 			easeIn: function easeIn(t, b, c, d) {
 				return c * (t /= d) * t + b;
@@ -599,7 +593,7 @@
 				return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
 			}
 		},
-
+	
 		Expo: {
 			easeIn: function easeIn(t, b, c, d) {
 				return t == 0 ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
@@ -707,10 +701,9 @@
 			}
 		}
 	};
-
+	
 	exports.Tween = Tween;
-	//# sourceMappingURL=tween.js.map
-
 
 /***/ }
 /******/ ]);
+//# sourceMappingURL=test.bundle.js.map

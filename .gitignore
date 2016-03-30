@@ -1,3 +1,3 @@
 node_modules/
-# 不提交map文件
+# 忽略*.map
 build/**/*.map

@@ -115,8 +115,8 @@ const http = ({ method, url = '', param = null,
 		beforeSend = noop, success = noop, 
 		error = noop, complete = noop }) => {
 	var xhr;
-	if (window.XMLHttpRequrest) {
-		xhr = new XMLHttpRequrest();
+	if (window.XMLHttpRequest) {
+		xhr = new XMLHttpRequest();
 	}
 	else {
 

@@ -21,7 +21,7 @@ var path = {
 		dest: './build/css/'
 	},
 	webpack: {
-		src: './build/js/test.js',
+		src: './assets/babel/test.js',
 		dest: './build/webpack/'
 	}
 };
@@ -51,7 +51,21 @@ gulp.task('webpack', () => {
 	gulp.src(path.webpack.src)
 		.pipe(plumber())
 		.pipe(sourcemaps.init())
-		.pipe(webpack({ output: { filename: 'test.js' } }))
+		.pipe(webpack({
+			output: { filename: 'test.bundle.js' },
+			module: {
+				loaders: [
+					{
+						text: /\.js?$/,
+						loader: 'babel-loader',
+						query: {
+							presets: ['es2015']
+						}
+					}
+				]
+			},
+			devtool: 'source-map'
+		}))
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(path.webpack.dest));
 });
@@ -62,6 +76,6 @@ gulp.task('babel:watch', () => gulp.watch(path.babel.src, ['babel']));
 gulp.task('sass:watch', () => gulp.watch(path.sass.src, ['sass']));
 gulp.task('webpack:watch', () => gulp.watch(path.webpack.src, ['webpack']));
 
-gulp.task('watch', ['babel:watch', /*'sass:watch', */'webpack:watch']);
+gulp.task('watch', [/*'babel:watch', 'sass:watch', */'webpack:watch']);
 
-gulp.task('default', ['babel', /*'sass', */'webpack', 'watch']);
+gulp.task('default', [/*'babel', 'sass', */'webpack', 'watch']);
