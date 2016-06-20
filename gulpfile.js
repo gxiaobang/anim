@@ -5,7 +5,8 @@
 
 var gulp = require('gulp'),
 		babel = require('gulp-babel'), 	// babel-preset-es2015
-		// sass = require('gulp-sass'),
+		sass = require('gulp-sass'),
+		autoprefixer = require('gulp-autoprefixer'),
 		webpack = require('gulp-webpack'),
 		plumber = require('gulp-plumber'),
 		sourcemaps = require('gulp-sourcemaps');
@@ -21,7 +22,7 @@ var path = {
 		dest: './build/css/'
 	},
 	webpack: {
-		src: './assets/babel/test.js',
+		src: './assets/babel/**/*.{js,jsx}',
 		dest: './build/webpack/'
 	}
 };
@@ -42,6 +43,9 @@ gulp.task('sass', () => {
 		.pipe(plumber())
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(autoprefixer({
+			browsers: ['last 2 versions']
+		}))
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(path.sass.dest));
 });
@@ -50,9 +54,9 @@ gulp.task('sass', () => {
 gulp.task('webpack', () => {
 	gulp.src(path.webpack.src)
 		.pipe(plumber())
-		.pipe(sourcemaps.init())
-		.pipe(webpack({
-			output: { filename: 'test.bundle.js' },
+		// .pipe(sourcemaps.init())
+		.pipe(webpack({ 
+			output: { filename: 'entry.js' },
 			module: {
 				loaders: [
 					{
@@ -66,7 +70,7 @@ gulp.task('webpack', () => {
 			},
 			devtool: 'source-map'
 		}))
-		.pipe(sourcemaps.write('./'))
+		// .pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(path.webpack.dest));
 });
 
@@ -76,6 +80,6 @@ gulp.task('babel:watch', () => gulp.watch(path.babel.src, ['babel']));
 gulp.task('sass:watch', () => gulp.watch(path.sass.src, ['sass']));
 gulp.task('webpack:watch', () => gulp.watch(path.webpack.src, ['webpack']));
 
-gulp.task('watch', [/*'babel:watch', 'sass:watch', */'webpack:watch']);
+gulp.task('watch', [/*'babel:watch',*/ 'sass:watch', 'webpack:watch']);
 
-gulp.task('default', [/*'babel', 'sass', */'webpack', 'watch']);
+gulp.task('default', [/*'babel',*/ 'sass', 'webpack', 'watch']);

@@ -1,7 +1,6 @@
-# anim.js
-## 轻量级的动画补间库
+# anim 动画库
 
-结合[缓动公式](https://github.com/zhangxinxu/Tween/blob/master/tween.js)，可根据需要选择不同的动画形态。
+## 结合缓动公式，实现不同的动画补间
 
 ## 用法：anim(el, options);
 ### options属性配置
@@ -10,23 +9,23 @@
 + options.durantion 持续时间
 + options.tween 缓动方式
 
+`new Anim(el, options)`
+## options
+参数		|类型					|默认值			|描述
+--------|-------------|-----------|------------
+form		|Json					|当前样式		|起始样式
+to			|Json					|无					|目标样式
+duration|String|Number|400ms 			|持续时间
+tween		|String				|ease-out		|缓动方式
+
 
 ## 使用示例
 ```javascript
-anim('#box', {
-	// 起始位置(可选)
-	from: {
-		left: '10px',
-		top: '10px'
-	},
-	// 结束位置
-	to: {
-		left: '400px',
-		top: '500px'
-	},
-	// 持续时间(可选)
+var anim = new Anim('#foo', {
+	form: { left: '10px' },
+	to: { left: '200px' },
 	duration: '500ms',
-	// 缓动方式(可选)
-	tween: 'Quad.easeIn'
+	tween: 'ease-out'
 });
+anim.run();		// 执行
 ```

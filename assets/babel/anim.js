@@ -1,21 +1,18 @@
 /**
  * tw.js
- * 微型动画库
+ * 动画库
  * by bang
  */
-
-import { isFunction, isArray, getDOM, getStyle, setStyle, requestAnim } from './util.js';
-import { Tween } from './tween.js';
+import {
+	BaseMethod, 
+	isFunction, isArray, 
+	$s, getStyle, setStyle, requestAnim } from './util.js';
+import Tween from './tween.js';
 
 // 补间动画
-class Anim {
+class Anim extends BaseMethod {
 	constructor(el, options) {
-		this.el = getDOM(el)[0];
-		this.fn = {
-			begin: [],
-			moving: [],
-			complete: []
-		};
+		this.el = $s(el)[0];
 		this.queue = [];
 		this.addQueue(options || {});
 	}
@@ -25,51 +22,6 @@ class Anim {
 		this.animated = false;
 		this.shiftQueue();
 		return this;
-	}
-
-	on(type, fn) {
-		if (isFunction(fn)) {
-			switch (type) {
-				case 'begin':
-				case 'moving':
-				case 'complete':
-					this.fn[ type ].push(fn);
-					break;
-			}
-		}
-		return this;
-	}
-
-	un(type, fn) {
-		switch (type) {
-			case 'begin':
-			case 'moving':
-			case 'complete':
-				if (fn) {
-					for (let i = 0, f; f = this.fn[ type ][ i ]; i++) {
-						if (f === fn) {
-							this.fn[ type ].splice(i, 1);
-							i--;
-						}
-					}
-				}
-				else {
-					this.fn[ type ].length = 0;
-				}
-		}
-		return this;
-	}
-
-	// 触发事件
-	trigger(fn, obj, ...args) {
-		if (isFunction(fn)) {
-			fn.call(obj, ...args);
-		}
-		else if (isArray(fn)) {
-			fn.forEach((f) => {
-				f.call(obj, ...args);
-			});
-		}
 	}
 
 	// 添加队列
@@ -151,17 +103,6 @@ class Anim {
 		return this;
 	}
 
-	set(prop, value) {
-		switch (prop) {
-			case 'tween':
-				this.queue[0].easeFn = Anim.getTween(value);
-				break;
-			default:
-				this.queue[0][ prop ] = value;
-		}
-		return this;
-	}
-
 	// 转化成毫秒
 	static toMs(ms) {
 		return /\ds$/.test(ms) ? parseFloat(ms) * 1000 : parseFloat(ms);
@@ -181,4 +122,4 @@ class Anim {
 	}
 }
 
-export const anim = (el, options) => new Anim(el, options);
+export default Anim;

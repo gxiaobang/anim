@@ -1,27 +1,25 @@
-import { anim } from './anim.js';
-import { getDOM, setStyle } from './util.js';
+import Anim from './anim.js';
+import { $s, setStyle } from './util.js';
 
 
-var type = getDOM('#type')[0],
-		ease = getDOM('#ease')[0],
-		distance = getDOM('#distance')[0],
-		duration = getDOM('#duration')[0];
+var type = $s('#type')[0],
+		ease = $s('#ease')[0],
+		distance = $s('#distance')[0],
+		duration = $s('#duration')[0];
 
-var animObj = anim('#box');
+var anim = new Anim('#box')
+	.on('complete', () => {
+		console.log('animatte is complete.');
+	});
 
-getDOM('#btnRun')[0].onclick = () => {
-	animObj
+
+addEvent('#btnRun', 'click', () => {
+	anim
 		.set('tween', `${type.value}.${ease.value}`)
-		.set('from', {})
 		.set('to', { left: distance.value })
 		.set('duration', duration.value)
-		.un('complete')
-		.on('complete', () => {
-			console.log('animatte is complete.');
-		})
 		.run();
-};
-		
-getDOM('#btnStop')[0].onclick = () => animObj.stop();
+});
 
-getDOM('#btnReset')[0].onclick = () => setStyle('#box', { left: 0 });
+addEvent('#btnStop', 'click', () => animObj.stop());
+addEvent('#btnReset', 'click', () => setStyle('#box', { left: 0 }));

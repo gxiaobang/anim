@@ -174,4 +174,4 @@ const Tween = {
 	}
 };
 
-export { Tween };
+export default Tween;
