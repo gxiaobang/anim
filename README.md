@@ -2,21 +2,14 @@
 
 ## 结合缓动公式，实现不同的动画补间
 
-## 用法：anim(el, options);
-### options属性配置
-+ options.from 起始状态
-+ options.to 结束状态
-+ options.durantion 持续时间
-+ options.tween 缓动方式
-
-`new Anim(el, options)`
+## `new Anim(el, options)`
 ## options
-参数		|类型					|默认值			|描述
---------|-------------|-----------|------------
-form		|Json					|当前样式		|起始样式
-to			|Json					|无					|目标样式
-duration|String|Number|400ms 			|持续时间
-tween		|String				|ease-out		|缓动方式
+参数		|类型						|默认值			|描述
+--------|---------------|-----------|------------
+form		|Json						|当前样式		|起始样式
+to			|Json						|无					|目标样式
+duration|String\|Number |400ms 			|持续时间
+tween		|String					|ease-out		|缓动方式
 
 
 ## 使用示例
