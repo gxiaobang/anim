@@ -1,5 +1,5 @@
 import Anim from './anim.js';
-import { $s, setStyle } from './util.js';
+import { $s, setStyle, addEvent } from './util.js';
 
 
 var type = $s('#type')[0],
@@ -15,11 +15,13 @@ var anim = new Anim('#box')
 
 addEvent('#btnRun', 'click', () => {
 	anim
-		.set('tween', `${type.value}.${ease.value}`)
-		.set('to', { left: distance.value })
-		.set('duration', duration.value)
+		.setOptions({
+			to: { left: distance.value },
+			tween: `${type.value}.${ease.value}`,
+			duration: duration.value
+		})
 		.run();
 });
 
-addEvent('#btnStop', 'click', () => animObj.stop());
+addEvent('#btnStop', 'click', () => anim.stop());
 addEvent('#btnReset', 'click', () => setStyle('#box', { left: 0 }));

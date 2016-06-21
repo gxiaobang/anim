@@ -12,9 +12,11 @@ import Tween from './tween.js';
 // 补间动画
 class Anim extends BaseMethod {
 	constructor(el, options) {
+		super();
 		this.el = $s(el)[0];
 		this.queue = [];
-		this.addQueue(options || {});
+		// this.addQueue(options || {});
+		this.initFn('complete');
 	}
 
 	// 清除
@@ -39,7 +41,7 @@ class Anim extends BaseMethod {
 	}
 
 	shiftQueue() {
-		this.queue.unshift();
+		this.queue.shift();
 	}
 
 	// 运行
@@ -96,10 +98,15 @@ class Anim extends BaseMethod {
 	// 完成动画
 	complete() {
 		var { to } = this.queue[0];
-		this.animated = false;
+		this.stop();
 		setStyle(this.el, to);
-		this.shiftQueue();
-		this.trigger(this.fn.complete, this, this.el);
+		this.trigger('complete', this, this.el);
+		return this;
+	}
+
+	// 设置参数
+	setOptions(options = {}) {
+		this.addQueue(options);
 		return this;
 	}
 

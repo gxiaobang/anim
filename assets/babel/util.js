@@ -49,12 +49,14 @@ class BaseMethod {
 	// 修改设置属性
 	set(prop, value) {
 		this[ prop ] = value;
+		return this;
 	}
 	// 修改添加属性
 	add(prop, value) {
 		if (isArray(this[ prop ])) {
 			this[ prop ].push(value);
 		}
+		return this;
 	}
 
 	// 触发事件
@@ -68,6 +70,9 @@ class BaseMethod {
 				result = f.call(obj, ...args);
 				return result;
 			});
+		}
+		else if (isString(fn)) {
+			result = this.trigger(this.fn[fn], obj, ...args);
 		}
 
 		return result !== false;
@@ -93,15 +98,15 @@ function named(name) {
 
 // 获取dom节点
 function $s(expr, root = document) {
-	if (isString(expr)) {
-		return root.querySelectorAll(expr);
+	if (typeof expr === 'object') {
+		if (expr.nodeType !== 1) {
+			return expr;
+		}
+		else {
+			return [expr];
+		}
 	}
-	else if (expr) {
-		return isNumber(expr.length) ? expr : [expr];
-	}
-	else {
-		return [];
-	}
+	return root.querySelectorAll(expr);
 }
 
 
@@ -137,6 +142,29 @@ function parseDOM(html) {
 		}
 		return fragment;
 	}
+}
+
+// 解析表单
+function parseForm(form) {
+	var json = {};
+	forEach(form.elements, element => {
+		let name = element.name;
+		let type = element.type;
+		if (name) {
+			switch (type) {
+				case 'radio':
+				case 'checkbox':
+					if (element.checked) {
+						json[ name ] = element.value || 'true';
+					}
+					break;
+				default:
+					json[ name ] = element.value;
+					break;
+			}
+		}
+	});
+	return json;
 }
 
 // 设置样式
@@ -190,6 +218,50 @@ function setStyle(el, name, value) {
 }
 
 
+// className
+function hasClass(el, className) {
+	if (el.classList) {
+		return el.classList.contains(className);
+	}
+	else {
+		var list = el.className.split(/\s+/g);
+		return list.indexOf(className) > -1;
+	}
+}
+function addClass(el, className) {
+	if (el.classList) {
+		el.classList.add(className);
+	}
+	else {
+		if (!hasClass(el, className)) {
+			var list = el.className.split(/\s+/g);
+			list.push(className);
+			el.className = list.join(' ');
+		}
+	}
+}
+function removeClass(el, className) {
+	if (el.classList) {
+		el.classList.remove(className);
+	}
+	else {
+		if (hasClass(el, className)) {
+			var list = el.className.split(/\s+/g);
+			list.splice(list.indexOf(className), 1);
+			el.className = list.join(' ');
+		}
+	}
+}
+function toggleClass(el, className) {
+	if (hasClass(el, className)) {
+		removeClass(el, className);
+	}
+	else {
+		addClass(el, className);
+	}
+}
+
+
 // 兼容事件
 function fixEvent(event) {
 	event = event || window.event;
@@ -231,7 +303,7 @@ function addEvent(el, type, expr, fn) {
 		el = $s(el);
 	}
 	
-	if (el.length) {
+	if (el.length && el.nodeType != 1) {
 		forEach(el, function(elem) {
 			addEvent(elem, type, expr, fn);
 		});
@@ -394,8 +466,10 @@ export {
 	isObject, isNumber, isArray, isString, isFunction,
 	forEach,
 	getIndex, $s, 
-	parseDOM, getStyle, setStyle, 
-	contains, addEvent, removeEvent,
+	parseDOM, parseForm,
+	getStyle, setStyle,
+	addClass, removeClass, hasClass, toggleClass,
+	contains, addEvent, removeEvent, fixEvent,
 	templ, dateFormat, getPoint,
 	mixin, requestAnim, suports
 };
