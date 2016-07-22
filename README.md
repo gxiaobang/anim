@@ -2,9 +2,11 @@
 
 ## 结合缓动公式，实现不同的动画补间
 
-## `new Anim(el, options)`
-## options
-参数		|类型						|默认值			|描述
+## 语法
+`new Anim(el, options)`
+
+## 参数
+options	|type						|default		|description
 --------|---------------|-----------|------------
 form		|Json						|当前样式		|起始样式
 to			|Json						|无					|目标样式
@@ -20,5 +22,5 @@ var anim = new Anim('#foo', {
 	duration: '500ms',
 	tween: 'ease-out'
 });
-anim.run();		// 执行
+anim.run();		// 运行
 ```
