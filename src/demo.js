@@ -1,5 +1,5 @@
-import Anim from './anim.js';
-import { $s, setStyle, addEvent } from './util.js';
+import GoAnim from './lib/go-anim.js';
+import { $s, setStyle, addEvent } from './lib/util.js';
 
 
 var type = $s('#type')[0],
@@ -7,14 +7,14 @@ var type = $s('#type')[0],
 		distance = $s('#distance')[0],
 		duration = $s('#duration')[0];
 
-var anim = new Anim('#box')
+var goAnim = new GoAnim('#box')
 	.on('complete', () => {
-		console.log('animatte is complete.');
+		console.log('animation is complete.');
 	});
 
 
 addEvent('#btnRun', 'click', () => {
-	anim
+	goAnim
 		.setOptions({
 			to: { left: distance.value },
 			tween: `${type.value}.${ease.value}`,
@@ -23,5 +23,5 @@ addEvent('#btnRun', 'click', () => {
 		.run();
 });
 
-addEvent('#btnStop', 'click', () => anim.stop());
+addEvent('#btnStop', 'click', () => goAnim.stop());
 addEvent('#btnReset', 'click', () => setStyle('#box', { left: 0 }));
